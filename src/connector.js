@@ -1,9 +1,12 @@
 "use strict";
 
 const EventEmitter = require('events').EventEmitter;
-const util = require('util');
 const pkg = require('../package.json');
+const hazelcast = require('hazelcast-client');
 
+function isObject(val) {
+  return val != null && typeof(val) === 'object' && val.constructor !== Array
+}
 
 /**
  * A [deepstream](http://deepstream.io) cache connector class
@@ -26,9 +29,31 @@ class Connector extends EventEmitter {
    * }
    */
   constructor(options) {
+    super();
+
+    options = options || {};
+
     this.isReady = false;
     this.name = pkg.name;
     this.version = pkg.version;
+
+    this._validateOptions(options);
+
+    const config = new hazelcast.Config.ClientConfig();
+    this._populateConfig(config, options);
+
+    // config.listeners.lifecycle.push((foo) => {
+    //   console.log('===>', foo)
+    // })
+
+    hazelcast.Client.newHazelcastClient(config).then((client) => {
+      this.isReady = true;
+      this.client = client.getMap(options.mapName);
+      this.emit('ready');
+    }).catch(this._emitError.bind(this));
+
+    // TODO: Detect when client is disconnected and emit error
+    // this.emit('error', 'disconnected')
   }
 
   /**
@@ -42,7 +67,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   set(key, value, callback) {
-
+    this.client.set(key, value).then(() => {callback(null)}).catch(callback);
   }
 
   /**
@@ -56,7 +81,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   get(key, callback) {
-
+    this.client.get(key).then((res) => {callback(res)}).catch(callback);
   }
 
   /**
@@ -70,7 +95,37 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   delete(key, callback) {
+    this.client.delete(key).then(() => {callback(null)}).catch(callback);
+  }
 
+  _emitError(error) {
+    this.emit('error', `HAZELCAST error: ${error}`);
+  }
+
+  _populateConfig(config, options) {
+    for(let key in config) {
+      if(!config.hasOwnProperty(key))
+        continue;
+
+      if(isObject(config[key])) {
+        if(isObject(options[key])) {
+          this._populateConfig(config[key], options[key])
+        }
+      }
+      else if (options[key] !== undefined) {
+        config[key] = options[key]
+      }
+    }
+  }
+
+  _validateOptions(options) {
+    if(!isObject(options)) {
+      throw new Error("options should be an object");
+    }
+
+    if(!options.mapName) {
+      throw new Error("Missing option 'mapName' for hazelcast-connector");
+    }
   }
 }
 
