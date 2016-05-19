@@ -7,8 +7,8 @@ const EventEmitter = require('events').EventEmitter;
 const settings = {
   networkConfig: {
     addresses: [{
-      host: '192.168.99.100',
-      port: 5701
+      host: process.env.HAZELCAST_HOST || 'localhost',
+      port: process.env.HAZELCAST_PORT || 5701
     }],
     connectionTimeout: 1000,
     connectionAttemptLimit: 1

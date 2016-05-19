@@ -21,8 +21,6 @@
     "hazelcast-client": "^0.2.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-release": "0.9.0",
     "jasmine": "^2.4.1"
   }
 }
