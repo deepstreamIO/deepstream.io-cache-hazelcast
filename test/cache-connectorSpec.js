@@ -7,7 +7,7 @@ const EventEmitter = require('events').EventEmitter;
 const settings = {
   networkConfig: {
     addresses: [{
-      host: 'localhost',
+      host: '192.168.99.100',
       port: 5701
     }],
     connectionTimeout: 1000,
@@ -50,7 +50,7 @@ describe('the message connector has the correct structure', () => {
     expect(cacheConnector.isReady).toBe(false);
 
     cacheConnector.on('ready', () => {
-      fail("ready event should't have been called")
+      fail("ready event should't have been called");
     });
 
     cacheConnector.on('error', done);
@@ -72,49 +72,50 @@ describe('the message connector has the correct structure', () => {
     });
   });
 
-  it( 'implements the cache/storage connector interface', function() {
-    expect( typeof cacheConnector.name ).toBe( 'string' );
-    expect( typeof cacheConnector.version ).toBe( 'string' );
-    expect( typeof cacheConnector.get ).toBe( 'function' );
-    expect( typeof cacheConnector.set ).toBe( 'function' );
-    expect( typeof cacheConnector.delete ).toBe( 'function' );
-    expect( cacheConnector instanceof EventEmitter ).toBe( true );
+  it('implements the cache/storage connector interface', () => {
+    expect(typeof cacheConnector.name).toBe('string');
+    expect(typeof cacheConnector.version).toBe('string');
+    expect(typeof cacheConnector.get).toBe('function');
+    expect(typeof cacheConnector.set).toBe('function');
+    expect(typeof cacheConnector.delete).toBe('function');
+
+    expect(cacheConnector instanceof EventEmitter).toBe(true);
   });
 
-  it( 'retrieves a non existing value', function( done ){
-    cacheConnector.get( 'someValue', function( error, value ){
-      expect( error ).toBe( null );
-      expect( value ).toBe( null );
+  it('retrieves a non existing value', (done) => {
+    cacheConnector.get('someValue', (error, value) => {
+      expect(error).toBe(null);
+      expect(value).toBe(null);
       done();
     });
   });
 
-  it( 'sets a value', function( done ){
-    cacheConnector.set( 'someValue', { firstname: 'Wolfram' }, function( error ){
-      expect( error ).toBe( null );
+  it('sets a value', (done) => {
+    cacheConnector.set('someValue', { firstname: 'Wolfram' }, (error) => {
+      expect(error).toBe(null);
       done();
     });
   });
 
-  it( 'retrieves an existing value', function( done ){
-    cacheConnector.get( 'someValue', function( error, value ){
-      expect( error ).toBe( null );
-      expect( value ).toEqual( { firstname: 'Wolfram' } );
+  it('retrieves an existing value', (done) => {
+    cacheConnector.get('someValue', (error, value) => {
+      expect(error).toBe(null);
+      expect(value).toEqual({ firstname: 'Wolfram' });
       done();
     });
   });
 
-  it( 'deletes a value', function( done ){
-    cacheConnector.delete( 'someValue', function( error ){
-      expect( error ).toBe( null );
+  it('deletes a value', (done) => {
+    cacheConnector.delete('someValue', (error) => {
+      expect(error).toBe(null);
       done();
     });
   });
 
-  it( 'Can\'t retrieve a deleted value', function( done ){
-    cacheConnector.get( 'someValue', function( error, value ){
-      expect( error ).toBe( null );
-      expect( value ).toBe( null );
+  it("Can't retrieve a deleted value", (done) => {
+    cacheConnector.get('someValue', (error, value) => {
+      expect(error).toBe(null);
+      expect(value).toBe(null);
       done();
     });
   });

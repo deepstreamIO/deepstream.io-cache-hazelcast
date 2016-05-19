@@ -1,2 +1,25 @@
-# deepstream.io-cache-and-storage-connector-template
-A template that can be forked to create new cache and storage connectors
+# deepstream.io-cache-hazelcast [![npm version](https://badge.fury.io/js/deepstream.io-cache-hazelcast.svg)](http://badge.fury.io/js/deepstream.io-cache-hazelcast)
+
+[deepstream](http://deepstream.io) cache connector for [hazelcast](http://hazelcast.org/)
+
+This connector uses [the npm hazelcast package](https://www.npmjs.com/package/hazelcast).
+Please have a look there for detailed options.
+
+##Basic Setup
+```javascript
+const Deepstream = require('deepstream.io');
+const HazelcastCacheConnector = require('deepstream.io-cache-hazelcast');
+const server = new Deepstream();
+
+server.set('cache', new HazelcastCacheConnector({
+  networkConfig: {
+    addresses: [{
+      host: 'localhost',
+      port: 5701
+    }]
+  },
+  mapName: 'deepstreamCache'
+}));
+
+server.start();
+```
