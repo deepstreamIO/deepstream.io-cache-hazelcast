@@ -12,9 +12,6 @@ function isObject(val) {
  * A [deepstream](http://deepstream.io) cache connector class
  * for [hazelcast](http://hazelcast.org/)
  *
- * @author Arnar Yngvason
- * @copyright 2016 deepstream.io
- *
  * @extends EventEmitter
  */
 class Connector extends EventEmitter {
