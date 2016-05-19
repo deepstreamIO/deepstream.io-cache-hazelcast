@@ -2,7 +2,7 @@
 
 [deepstream](http://deepstream.io) cache connector for [hazelcast](http://hazelcast.org/)
 
-This connector uses [the npm hazelcast package](https://www.npmjs.com/package/hazelcast).
+This connector uses [the npm hazelcast-client package](https://www.npmjs.com/package/hazelcast-client).
 Please have a look there for detailed options.
 
 ##Basic Setup
