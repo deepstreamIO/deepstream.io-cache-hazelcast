@@ -19,7 +19,7 @@ const settings = {
 const wrongSettings = {
   networkConfig: {
     addresses: [{
-      host: '244.244.244.244',
+      host: 'thisdomaindoesnotexist',
       port: 5701
     }],
     connectionTimeout: 1000,
@@ -51,6 +51,7 @@ describe('the message connector has the correct structure', () => {
 
     cacheConnector.on('ready', () => {
       fail("ready event should't have been called");
+      done();
     });
 
     cacheConnector.on('error', done);
