@@ -4,9 +4,11 @@ const EventEmitter = require('events').EventEmitter;
 const pkg = require('../package.json');
 const hazelcast = require('hazelcast-client');
 
+
 function isObject(val) {
-  return val != null && typeof(val) === 'object' && val.constructor !== Array
+  return val != null && typeof(val) === 'object' && val.constructor !== Array;
 }
+
 
 /**
  * A [deepstream](http://deepstream.io) cache connector class
@@ -37,20 +39,24 @@ class Connector extends EventEmitter {
     this._validateOptions(options);
 
     const config = new hazelcast.Config.ClientConfig();
+
+    config.properties['hazelcast.logging'] = {
+      log: this._hazelcastLogger.bind(this)
+    };
+
     this._populateConfig(config, options);
 
-    hazelcast.Client.newHazelcastClient(config).then((client) => {
+    this.client = new hazelcast.Client(config);
+
+    this.client.connectionManager.on('connectionClosed', () => {
+      console.log('connectionClosed !!!')
+    })
+
+    this.client.init().then((client) => {
       this.isReady = true;
-      this.client = client.getMap(options.mapName);
+      this.map = client.getMap(options.mapName);
       this.emit('ready');
     }).catch(this._emitError.bind(this));
-
-    // TESTME:
-    config.listeners.lifecycle.push((event) => {
-      if(event === 'clinet_disconnected') {
-        this.emit('error', 'disconnected')
-      }
-    })
   }
 
   /**
@@ -64,7 +70,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   set(key, value, callback) {
-    this.client.put(key, value).then(() => {callback(null)}).catch(callback);
+    this.map.put(key, value).then(() => {callback(null)}).catch(callback);
   }
 
   /**
@@ -78,7 +84,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   get(key, callback) {
-    this.client.get(key).then((res) => {callback(null, res)}).catch(callback);
+    this.map.get(key).then((res) => {callback(null, res)}).catch(callback);
   }
 
   /**
@@ -92,7 +98,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   delete(key, callback) {
-    this.client.remove(key).then(() => {callback(null)}).catch(callback);
+    this.map.remove(key).then(() => {callback(null)}).catch(callback);
   }
 
   _emitError(error) {
@@ -101,16 +107,17 @@ class Connector extends EventEmitter {
 
   _populateConfig(config, options) {
     for(let key in config) {
-      if(!config.hasOwnProperty(key))
+      if(!config.hasOwnProperty(key)) {
         continue;
+      }
 
       if(isObject(config[key])) {
         if(isObject(options[key])) {
-          this._populateConfig(config[key], options[key])
+          this._populateConfig(config[key], options[key]);
         }
       }
       else if (options[key] !== undefined) {
-        config[key] = options[key]
+        config[key] = options[key];
       }
     }
   }
@@ -122,6 +129,24 @@ class Connector extends EventEmitter {
 
     if(!options.mapName) {
       throw new Error("Missing option 'mapName' for hazelcast-connector");
+    }
+  }
+
+  _hazelcastLogger(level, className, message, furtherInfo) {
+    // 1 is actually warnings, but we emit them as errors:
+    if(level <= 1) {
+      // Let deepstream know that the client has disconnected:
+      if(className === 'ClientConnection') {
+        this.emit('error', 'disconnected');
+      }
+
+      // Emit error message:
+      let error = `at ${className}: ${message}`;
+      if(furtherInfo) {
+        error += `\n${furtherInfo}`;
+      }
+
+      this._emitError(error);
     }
   }
 }
