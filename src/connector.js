@@ -133,15 +133,19 @@ class Connector extends EventEmitter {
   }
 
   _hazelcastLogger(level, className, message, furtherInfo) {
-    // 1 is actually warnings, but we emit them as errors:
-    if(level <= 1) {
+    // https://github.com/hazelcast/hazelcast-nodejs-client/blob/master/src/LoggingService.ts#L4
+    const logLevel = ['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE']
+
+    // Hazelcast will only send a `WARN` on connection failure,
+    // so we look out for the warnings as well:
+    if(level <= logLevel.indexOf('WARN')) {
       // Let deepstream know that the client has disconnected:
       if(className === 'ClientConnection') {
         this.emit('error', 'disconnected');
       }
 
       // Emit error message:
-      let error = `at ${className}: ${message}`;
+      let error = `${logLevel[level]} at ${className}: ${message}`;
       if(furtherInfo) {
         error += `\n${furtherInfo}`;
       }
