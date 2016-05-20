@@ -47,11 +47,6 @@ class Connector extends EventEmitter {
     this._populateConfig(config, options);
 
     this.client = new hazelcast.Client(config);
-
-    this.client.connectionManager.on('connectionClosed', () => {
-      console.log('connectionClosed !!!')
-    })
-
     this.client.init().then((client) => {
       this.isReady = true;
       this.map = client.getMap(options.mapName);
@@ -66,7 +61,7 @@ class Connector extends EventEmitter {
    * @param {Object}   value
    * @param {Function} callback Should be called with null for successful set operations or with an error message string
    *
-   * @private
+   * @public
    * @returns {void}
    */
   set(key, value, callback) {
@@ -80,7 +75,7 @@ class Connector extends EventEmitter {
    * @param {Function} callback Will be called with null and the stored object
    *                            for successful operations or with an error message string
    *
-   * @private
+   * @public
    * @returns {void}
    */
   get(key, callback) {
@@ -94,17 +89,34 @@ class Connector extends EventEmitter {
    * @param   {Function} callback Will be called with null for successful deletions or with
    *                     an error message string
    *
-   * @private
+   * @public
    * @returns {void}
    */
   delete(key, callback) {
     this.map.remove(key).then(() => {callback(null)}).catch(callback);
   }
 
+  /**
+   * Emits an error
+   *
+   * @param   {String}   error
+   *
+   * @private
+   * @returns {void}
+   */
   _emitError(error) {
     this.emit('error', `HAZELCAST error: ${error}`);
   }
 
+  /**
+   * Recursively populates a hazelcast ClientConfig instance object with options
+   *
+   * @param   {Object}   config
+   * @param   {Object}   options
+   *
+   * @private
+   * @returns {void}
+   */
   _populateConfig(config, options) {
     for(let key in config) {
       if(!config.hasOwnProperty(key)) {
@@ -122,6 +134,14 @@ class Connector extends EventEmitter {
     }
   }
 
+  /**
+   * Validate options passed to Connector
+   *
+   * @param   {Object}   options
+   *
+   * @private
+   * @returns {void}
+   */
   _validateOptions(options) {
     if(!isObject(options)) {
       throw new Error("options should be an object");
@@ -132,6 +152,18 @@ class Connector extends EventEmitter {
     }
   }
 
+  /**
+   * Logging for the hazelcast client.
+   * See: [hazelcast-nodejs-client/src/DefaultLogger.ts](https://github.com/hazelcast/hazelcast-nodejs-client/blob/master/src/DefaultLogger.ts)
+   *
+   * @param   {Integer}  level
+   * @param   {String}   className
+   * @param   {String}   message
+   * @param   {String}   furtherInfo
+   *
+   * @private
+   * @returns {void}
+   */
   _hazelcastLogger(level, className, message, furtherInfo) {
     // https://github.com/hazelcast/hazelcast-nodejs-client/blob/master/src/LoggingService.ts#L4
     const logLevel = ['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE']
