@@ -1,6 +1,54 @@
 language: node_js
+
+env:
+  global:
+    - CXX=g++-4.8
+    - HAZELCAST_PORT=5701
+    - HAZELCAST_HOST=54.93.183.16
+
 node_js:
   - "stable"
-  - "6.0"
-  - "5.0"
-  - "4.0"
+  - "4.4.5"
+
+matrix:
+  include:
+    - node_js: "4.4.5"
+      os: osx
+
+script:
+  - npm test
+
+after_script:
+  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+
+before_deploy:
+  - chmod 555 scripts/package.sh && scripts/package.sh
+
+deploy:
+  - provider: s3
+    access_key_id:
+      secure: "C5edoODqGLyLrNLzRaykxSScQ2iackTZInc6nrEDf+s41pfQnLL6q4zWjWX8ych5gDeVR4pZ3gaq+fcge7XCfeK+ulChCK6o8PsIjMZ84tvKbGcr8rW6+EKs14I3ryiKhkRItaFnMUOJcyHPo7r3lO8XIrSmr/YYB9xVLhLInH8CD7UV3olFdn9DV7jFKwotrkRISASvL9GJHfBo+bZSwDCIaOKS62/qZtyXZf0QVgiIW+mKCHbRVhbuooJt/yQyAyqV4qNZwgx6XJ/97YrOZDbw9rtqF8kKW9RaYjdHO2aKef9PIkGGmkPW7tEl7OvCck2tcY3eo9Qf1uSoStFIH976k1bvLqbZ1Uwv5mmTWB9sVN4n0D0HojJEXRAITLLTwjArG0w3VvMcSB/FrEjwJ3BEF2U6ixNtGZNYbzSgnNt0htHCxrAVaUYh7cFyi2misJ5/Txe1yVKJugTMkksNOirT81bLEkl82pFQnkRKyKCkQyyeRPRLsqAQfSAY8Fdlq5o+Ul1Dv1HEIqcVz0292OCCnqoSTOR2T2tTa3ZtypEddabPjbpTnp44zZTWE8VxUb5HNtB8FkGFUgJepxSoz1tk/v4VJqD7q5QnUa9nGHS5kkOrf/bc/mYCEAJak3tjRfD3zJ9IXvT4g1b/+Zb6r2no5h2xbWw8TUPyuR7kd4M="
+    secret_access_key:
+      secure: "Pky9WffAK+W/wIMIuxZ5gQSMXQthytxiRcu9438SH2+l7Nps23dyQbcgRnkcBbGnmwDK1CTJhFNRGZArrSoLK4eO0L5tAb6m2WOWGYQaw/vry3Zq81GHQjfVlIwONQkG9Y+OFq8fP93wgWcX23OdD3PJIsPnSJLbouAGOiEiu+f7QUSCaSEaqVE55xbDlay/zkldFFG+eqOJQ225/n7gxCn3e/7C0UQPx8Me3Vmjf9ef4XObg3qoPsuSYlti2UDXQj3am3RpY1OB1hp9E82RYkDK3t5V03JVDcCj1u6z0EqGN/jvtdVS2mokhXR/4DwGnNDxwDoyNMWhKv4ZMykPPwtCSctj5S47XAMUQlsPwna9FvHgI6Rk8pRYtsSAB3dIGtwIKOMsLhNA5vI1S1+5dCD+L2xMh6qaeL0yKOvY5tzGiRN5CXn497lsrRBBZduKIuHucYdc+6AH4wzeQ16UCOFf59gBstQ37S/C0IhYQiOHoEycAXwUOnoXrCxmBU2A+QzK2IH3JiJq/vAeZOuRvQ/CKevcxRXkwr2zlwq/nlx1x3SuBiq5pm+rwjP0B/TLe86woMtAwmjatGmRf2EAWqg4fTd5vHzpe2K8U1lcYCtRqv47k2BGOjTakiPxdH8IKf5RLkBv8U8f1kYyUbqpJl/D9wApy7tdRLgtPNKNu+U="
+    bucket: ds-server-artifacts
+    skip_cleanup: true
+    acl: public_read
+    local_dir: build
+    upload-dir: $TRAVIS_REPO_SLUG
+  - provider: releases
+    skip_cleanup: true
+    api_key:
+      secure: "KW1zzri+dMJehQy9aOdlp+U84KTTLFJXF3EO6M1dbcu4/SAnvPQNYsURw8cBLjEdlorZSo6HNDzS+dYTTwmqaoRfHSV6qspNb/U9DaQIguuH9v8+zV+SsOYlXpM3PuprVAroTKFPNOzTRaAVOfxXgc6vSSxE6BwIh8HIIqlEvngpC01Zand2uCTjCPM6S9flM+TAZDST2qScDxDrKVRDOYg8yS+VAEZ8NZPmOlrt9Lo0hZQ+Ar/vfprU0DJA2UqsZwuG4mDxpzY+Wu7FVaNne1XKMGix2OLFExlOup+QHrKNPYvFtkAUNwS5vS1EK/uhvhQFmTAhihfMZygreH5VcBXZG+/AobLI+tNUNLY2h6K6QmFTBii/3sR1QxYnxegD+svehbTF5hVl4ZQfPRtmUoRIXcZDA/Wmuy4iNjE3eG37tXiMqxc823hI+BnaEPf3+WCw8o/vP8o14bbW4BiHcUVdmDyiW/ID0+ZS4+E0JLxaeHewMqtrvWJxotInZwMjf09AQX4qiGrv0MFg6ZJVZkibxRnJ1FR6qvX7cE8Dxbwtaf3bG8fpTOzqirK4xXfw76PmYBNi1sK6ldd+xzyzzh3ZcsDuqZMivESJ04Z4sV3/pyOh20V/3RZCFPDPKs/8FRnx4/AcwQwXSMAyvZ/EQdJIX2rjljTHzIFZyQ4rgzc="
+    file_glob: true
+    file:
+      - "build/*.tar.gz"
+      - "build/*.zip"
+    on:
+      tags: true
+
+plugins:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
