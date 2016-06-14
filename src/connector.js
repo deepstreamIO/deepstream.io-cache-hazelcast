@@ -1,12 +1,12 @@
-"use strict";
+"use strict"
 
-const EventEmitter = require('events').EventEmitter;
-const pkg = require('../package.json');
-const hazelcast = require('hazelcast-client');
+const EventEmitter = require('events').EventEmitter
+const pkg = require('../package.json')
+const hazelcast = require('hazelcast-client')
 
 
 function isObject(val) {
-  return val != null && typeof(val) === 'object' && val.constructor !== Array;
+  return val != null && typeof(val) === 'object' && val.constructor !== Array
 }
 
 
@@ -28,30 +28,30 @@ class Connector extends EventEmitter {
    * }
    */
   constructor(options) {
-    super();
+    super()
 
-    options = options || {};
+    options = options || {}
 
-    this.isReady = false;
-    this.name = pkg.name;
-    this.version = pkg.version;
+    this.isReady = false
+    this.name = pkg.name
+    this.version = pkg.version
 
-    this._validateOptions(options);
+    this._validateOptions(options)
 
-    const config = new hazelcast.Config.ClientConfig();
+    const config = new hazelcast.Config.ClientConfig()
 
     config.properties['hazelcast.logging'] = {
       log: this._hazelcastLogger.bind(this)
-    };
+    }
 
-    this._populateConfig(config, options);
+    this._populateConfig(config, options)
 
-    this.client = new hazelcast.Client(config);
+    this.client = new hazelcast.Client(config)
     this.client.init().then((client) => {
-      this.isReady = true;
-      this.map = client.getMap(options.mapName);
-      this.emit('ready');
-    }).catch(this._emitError.bind(this));
+      this.isReady = true
+      this.map = client.getMap(options.mapName)
+      this.emit('ready')
+    }).catch(this._emitError.bind(this))
   }
 
   /**
@@ -65,7 +65,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   set(key, value, callback) {
-    this.map.put(key, value).then(() => {callback(null)}).catch(callback);
+    this.map.put(key, value).then(() => {callback(null)}).catch(callback)
   }
 
   /**
@@ -79,7 +79,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   get(key, callback) {
-    this.map.get(key).then((res) => {callback(null, res)}).catch(callback);
+    this.map.get(key).then((res) => {callback(null, res)}).catch(callback)
   }
 
   /**
@@ -93,7 +93,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   delete(key, callback) {
-    this.map.remove(key).then(() => {callback(null)}).catch(callback);
+    this.map.remove(key).then(() => {callback(null)}).catch(callback)
   }
 
   /**
@@ -105,7 +105,7 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   _emitError(error) {
-    this.emit('error', `HAZELCAST error: ${error}`);
+    this.emit('error', `HAZELCAST error: ${error}`)
   }
 
   /**
@@ -120,16 +120,16 @@ class Connector extends EventEmitter {
   _populateConfig(config, options) {
     for(let key in config) {
       if(!config.hasOwnProperty(key)) {
-        continue;
+        continue
       }
 
       if(isObject(config[key])) {
         if(isObject(options[key])) {
-          this._populateConfig(config[key], options[key]);
+          this._populateConfig(config[key], options[key])
         }
       }
       else if (options[key] !== undefined) {
-        config[key] = options[key];
+        config[key] = options[key]
       }
     }
   }
@@ -144,11 +144,11 @@ class Connector extends EventEmitter {
    */
   _validateOptions(options) {
     if(!isObject(options)) {
-      throw new Error("options should be an object");
+      throw new Error("options should be an object")
     }
 
     if(!options.mapName) {
-      throw new Error("Missing option 'mapName' for hazelcast-connector");
+      throw new Error("Missing option 'mapName' for hazelcast-connector")
     }
   }
 
@@ -173,19 +173,19 @@ class Connector extends EventEmitter {
     if(level <= logLevel.indexOf('WARN')) {
       // Let deepstream know that the client has disconnected:
       if(className === 'ClientConnection') {
-        this.emit('error', 'disconnected');
+        this.emit('error', 'disconnected')
       }
 
       // Emit error message:
-      let error = `${logLevel[level]} at ${className}: ${message}`;
+      let error = `${logLevel[level]} at ${className}: ${message}`
       if(furtherInfo) {
-        error += `\n${furtherInfo}`;
+        error += `\n${furtherInfo}`
       }
 
-      this._emitError(error);
+      this._emitError(error)
     }
   }
 }
 
 
-module.exports = Connector;
+module.exports = Connector
