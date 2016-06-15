@@ -6,6 +6,18 @@ This connector uses [the npm hazelcast-client package](https://www.npmjs.com/pac
 Please have a look there for detailed options.
 
 ##Basic Setup
+
+```yaml
+plugins:
+  cache:
+    name: hazelcast
+    options:
+      networkConfig:
+        addresses:
+          - host: $HAZELCAST_HOST
+            port: $HAZELCAST_PORT
+```
+
 ```javascript
 const Deepstream = require('deepstream.io');
 const HazelcastCacheConnector = require('deepstream.io-cache-hazelcast');

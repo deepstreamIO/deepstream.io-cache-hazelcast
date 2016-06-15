@@ -16,6 +16,9 @@ echo "Version now: $( node scripts/details.js VERSION )"
 echo 'Pushing to github'
 git push --follow-tags
 
+echo 'Publishing to npm'
+npm publish
+
 echo "Now we wait for the CI to build and upload artifacts to release"
 
 

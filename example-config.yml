@@ -1,0 +1,8 @@
+plugins:
+  cache:
+    name: hazelcast
+    options:
+      networkConfig:
+        addresses:
+          - host: ${HAZELCAST_HOST}
+            port: ${HAZELCAST_PORT}
