@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+
+
 if [ -z $1 ]; then
 	echo "Please provide a release version: patch, minor or major"
 	exit
@@ -11,7 +15,6 @@ fi
 echo 'Starting release'
 
 npm version $1
-echo "Version now: $( node scripts/details.js VERSION )"
 
 echo 'Pushing to github'
 git push --follow-tags
