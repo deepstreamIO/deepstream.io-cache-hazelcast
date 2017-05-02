@@ -20,12 +20,12 @@
   },
   "homepage": "http://deepstream.io",
   "dependencies": {
-    "hazelcast-client": "^0.2.1"
+    "hazelcast-client": "^0.6.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
     "istanbul": "^0.4.3",
-    "mocha": "^2.5.2"
+    "mocha": "^3.3.0"
   }
 }

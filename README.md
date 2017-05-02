@@ -1,5 +1,7 @@
 # deepstream.io-cache-hazelcast [![npm version](https://badge.fury.io/js/deepstream.io-cache-hazelcast.svg)](http://badge.fury.io/js/deepstream.io-cache-hazelcast) [![Build Status](https://travis-ci.org/deepstreamIO/deepstream.io-cache-hazelcast.svg?branch=master)](https://travis-ci.org/deepstreamIO/deepstream.io-cache-hazelcast)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/deepstreamIO/deepstream.io-cache-hazelcast.svg)](https://greenkeeper.io/)
+
 [deepstream](http://deepstream.io) cache connector for [hazelcast](http://hazelcast.org/)
 
 This connector uses [the npm hazelcast-client package](https://www.npmjs.com/package/hazelcast-client).
