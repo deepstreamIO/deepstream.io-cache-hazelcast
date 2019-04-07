@@ -4,10 +4,10 @@
   "description": "A hazelcast cache connector for deepstream.io",
   "main": "src/connector.js",
   "scripts": {
-    "test": "mocha",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
-    "lint": "eslint \"src/**/*.js\" \"test/**/*.js\"",
-    "ci": "npm run coverage"
+    "test": "mocha src/ --exit",
+    "coverage": "nyc mocha --exit src/",
+    "ci": "npm run coverage",
+    "docker": "docker run -p 5701:5701 hazelcast/hazelcast"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,12 @@
   },
   "homepage": "http://deepstream.io",
   "dependencies": {
-    "hazelcast-client": "^0.2.1"
+    "hazelcast-client": "^0.10.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.9",
-    "istanbul": "^0.4.3",
-    "mocha": "^2.5.2"
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.3",
+    "mocha": "^6.1.0",
+    "nyc": "^13.3.0"
   }
 }

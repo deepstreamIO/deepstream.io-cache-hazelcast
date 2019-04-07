@@ -1,18 +1,11 @@
-'use strict'
-
-/* global describe, expect, it, jasmine */
 const expect = require('chai').expect
-const CacheConnector = require('../src/connector')
+const CacheConnector = require('./connector')
 const EventEmitter = require('events').EventEmitter
-const MESSAGE_TIME = 20
 
 const settings = {
   networkConfig: {
-    addresses: [{
-      host: process.env.HAZELCAST_HOST || 'localhost',
-      port: process.env.HAZELCAST_PORT || 5701
-    }],
-    connectionTimeout: 1000,
+    addresses: ['localhost'],
+    connectionTimeout: 2000,
     connectionAttemptLimit: 1
   },
   mapName: 'deepstreamCache'
@@ -20,10 +13,7 @@ const settings = {
 
 const wrongSettings = {
   networkConfig: {
-    addresses: [{
-      host: 'thisdomaindoesnotexist',
-      port: 5701
-    }],
+    addresses: ['wrong-address'],
     connectionTimeout: 1000,
     connectionAttemptLimit: 1
   },

@@ -1,20 +1,16 @@
-"use strict"
-
 const EventEmitter = require('events').EventEmitter
 const pkg = require('../package.json')
-const hazelcast = require('hazelcast-client')
-
+const { Client, Config } = require('hazelcast-client')
 
 function isObject(val) {
   return val != null && typeof(val) === 'object' && val.constructor !== Array
 }
 
-
 /**
  * A [deepstream](http://deepstream.io) cache connector class
  * for [hazelcast](http://hazelcast.org/)
  *
- * @extends EventEmitter
+ * @extends EventEmitteraddress.indexOf
  */
 class Connector extends EventEmitter {
   /**
@@ -38,20 +34,23 @@ class Connector extends EventEmitter {
 
     this._validateOptions(options)
 
-    const config = new hazelcast.Config.ClientConfig()
-
+    const config = new Config.ClientConfig()
     config.properties['hazelcast.logging'] = {
       log: this._hazelcastLogger.bind(this)
     }
 
     this._populateConfig(config, options)
 
-    this.client = new hazelcast.Client(config)
-    this.client.init().then((client) => {
-      this.isReady = true
-      this.map = client.getMap(options.mapName)
-      this.emit('ready')
-    }).catch(this._emitError.bind(this))
+    Client
+        .newHazelcastClient(config)
+        .then((hazelcastClient) => {
+          hazelcastClient.getMap(options.mapName).then(map => {
+             this.map = map;
+             this.isReady = true
+             this.emit('ready')
+          })
+        })
+        .catch(this._emitError.bind(this))
   }
 
   /**
@@ -65,7 +64,9 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   set(key, value, callback) {
-    this.map.put(key, value).then(() => {callback(null)}).catch(callback)
+    this.map.put(key, value)
+        .then(() => callback(null))
+        .catch(callback)
   }
 
   /**
@@ -79,7 +80,9 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   get(key, callback) {
-    this.map.get(key).then((res) => {callback(null, res)}).catch(callback)
+    this.map.get(key)
+        .then((res) => callback(null, res || null))
+        .catch(callback)
   }
 
   /**
@@ -93,7 +96,9 @@ class Connector extends EventEmitter {
    * @returns {void}
    */
   delete(key, callback) {
-    this.map.remove(key).then(() => {callback(null)}).catch(callback)
+    this.map.remove(key)
+        .then(() => callback(null))
+        .catch(callback)
   }
 
   /**
