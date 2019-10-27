@@ -1,11 +1,14 @@
 {
-  "name": "deepstream.io-cache-hazelcast",
-  "version": "1.0.2",
+  "name": "@deepstream/cache-hazelcast",
+  "version": "2.0.0",
   "description": "A hazelcast cache connector for deepstream.io",
-  "main": "src/connector.js",
+  "main": "dist/src/connector.js",
   "scripts": {
-    "test": "mocha src/ --exit",
-    "coverage": "nyc mocha --exit src/",
+    "tsc": "tsc",
+    "lint": "tslint --project .",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "mocha --opts mocha.opts 'src/*.spec.ts'",
+    "coverage": "nyc mocha src/",
     "ci": "npm run coverage",
     "docker": "docker run -p 5701:5701 hazelcast/hazelcast"
   },
@@ -20,12 +23,20 @@
   },
   "homepage": "http://deepstream.io",
   "dependencies": {
+    "@deepstream/types": "^1.0.3",
     "hazelcast-client": "^0.10.0"
   },
   "devDependencies": {
+    "@deepstream/protobuf": "^1.0.1",
+    "@types/chai": "^4.2.3",
+    "@types/ioredis": "^4.0.17",
+    "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.3",
-    "mocha": "^6.1.0",
-    "nyc": "^13.3.0"
+    "coveralls": "^3.0.6",
+    "mocha": "^6.2.0",
+    "nyc": "^13.3.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
   }
 }
